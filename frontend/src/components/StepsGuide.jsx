@@ -2,11 +2,11 @@ import React from "react";
 
 function StepsGuide() {
   const steps = [
-    "Connect your account to get started",
-    "Paste your scheduling link for integration",
-    "Customize your availability and preferences",
-    "Share your unique scheduling link with others",
-    "Start booking and managing your meetings!",
+    "Paste your Calendly event share link",
+    "We analyze availability from the shared links",
+    "Find overlapping free time across all schedules",
+    "Get a list of the best available time slots",
+    "Easily share the results with others",
   ];
 
   return (

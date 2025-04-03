@@ -2,7 +2,7 @@ import axios from "axios";
 import {jwtDecode} from "jwt-decode";
 
 const api = axios.create({
-  baseURL: "http://localhost:5000",
+  baseURL: import.meta.env.VITE_BACKEND_BASE_URL, // Use environment variable
 });
 
 // 🔄 Interceptor to refresh token if expired
@@ -12,10 +12,7 @@ api.interceptors.request.use(async (config) => {
   const accessToken = localStorage.getItem("accessToken");
   const expiresAtString = localStorage.getItem("expiresAt"); // Retrieve as a string
   const expiresAt = expiresAtString ? new Date(expiresAtString).getTime() : 0;
-  console.log("uper wala expiresAtString",expiresAtString);
-  console.log("uper wala expiresAt",expiresAt);
-
-  console.log("uper wala access",accessToken);
+ 
   
 
   
@@ -37,22 +34,22 @@ api.interceptors.request.use(async (config) => {
 
   if (!accessToken || isJwtExpired || Date.now() > expiresAt){
     try {
-      console.log("trying to refresh");
+     
       
-      const refreshResponse = await axios.post("http://localhost:5000/refresh-token", {        
-        userId: localStorage.getItem("userId"), 
-      });
+      const refreshResponse = await axios.post(
+        `${import.meta.env.VITE_BACKEND_BASE_URL}/refresh-token`, 
+        { userId: localStorage.getItem("userId") }
+      );
       
-      console.log("refreshing token");
-      console.log();
+      
+
       
       
       localStorage.setItem("accessToken", refreshResponse.data.accessToken);
       localStorage.setItem("expiresAt", refreshResponse.data.expiresAt);
-     console.log("token refreshed successfully expires at",refreshResponse.data.expiresAt);
+  
 
-     console.log(" access token from local storage:", localStorage.getItem("accessToken"));
-     console.log(" expires at  from local storage:",localStorage.getItem("expiresAt"));
+
      
      
       config.headers.Authorization = `Bearer ${refreshResponse.data.accessToken}`;

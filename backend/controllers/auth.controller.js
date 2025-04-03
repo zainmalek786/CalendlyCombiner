@@ -52,7 +52,7 @@ const refreshTokenController = async (req, res, next) => {
       refresh_token: user.refresh_token,
     };
 
-    console.log("🔁 Refresh request data:", refreshData);
+  
 
     let response;
     try {
@@ -68,7 +68,6 @@ const refreshTokenController = async (req, res, next) => {
       return next(new ApiError(500, "Error refreshing Calendly token", error));
     }
 
-    console.log("✅ Calendly token refreshed successfully:", response.data);
 
     const { access_token, refresh_token, expires_in } = response.data;
 
@@ -83,7 +82,6 @@ const refreshTokenController = async (req, res, next) => {
     // 🔹 Generate a new JWT
     const newAccessToken = jwt.sign({ userId: user._id },process.env.JWT_SECRET,{ expiresIn: "1h" });
 
-    console.log("✅ Issuing new JWT:", newAccessToken);
 
     return res.status(200).json(
       new ApiResponse(200, { accessToken: newAccessToken, expiresAt: user.expires_at.toISOString(), }, "New JWT issued")

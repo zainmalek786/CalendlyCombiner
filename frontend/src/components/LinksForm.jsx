@@ -1,15 +1,21 @@
 import React, { useState } from "react";
 import Button from "./Button";
 import api from "../../util/axiosInstance";
+import { useNavigate } from "react-router-dom";
 
 function LinksForm() {
   const [links, setLinks] = useState(["", ""]); // Start with two input fields
-
+  const [loading,SetLoading]= useState(false)
+  const navigate = useNavigate();
 
   const handleSubmit = async ()=>{
     try {
+      SetLoading(true)
       const response = await api.post("/availability",{links})
-      console.log("response fetched",response.data)
+   
+      navigate('/results', { state: { data: response.data } });
+      
+      SetLoading(false)
     } catch (error) {
       console.error("Error fetching availability:", error.response?.data || error.message);
       alert("Failed to fetch availability.");
@@ -18,7 +24,7 @@ function LinksForm() {
   // Function to handle adding a new input field
   const addLinkField = () => {
     setLinks([...links, ""]);
-    console.log(links);
+   
     
   };
 
@@ -31,15 +37,25 @@ function LinksForm() {
 
 
   return (
-    <div className="flex flex-col items-center md:w-7/12 shadow-xl  shadow-slate-400  h-[550px] max-h-[550px] w-screen">
+    <div className="flex relative flex-col items-center md:w-7/12 shadow-xl  shadow-slate-400  h-[550px] max-h-[550px] w-screen">
 
 
       <div
-        className={`flex flex-col items-center w-full h-[550px] shadow-xl shadow-gray-300 scrollbar-custom overflow-y-auto rounded-md bg-gradient-to-br from-slate-50 to-slate-100`}
+        className={` ${ loading? 'pointer-events-none   ' : ''} flex flex-col items-center w-full h-[550px] shadow-xl shadow-gray-300 scrollbar-custom overflow-y-auto rounded-md bg-gradient-to-br from-slate-50 to-slate-100`}
       >
         <h2 className="text-xl font-bold mt-14 text-blue-900 text-center mb-4">
-          Enter Google Calendar or Calendly Links
+          Enter Calendly Share Links
         </h2>
+
+        {loading && (
+    <div className="absolute inset-0 flex flex-col items-center justify-center  z-10 bg-gray-100">
+      <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      <p className="mt-3 text-lg font-semibold text-gray-700">Please wait...</p>
+    </div>
+  )}
+
+
+
 
         {/* Input Fields Container */}
         <div className="flex flex-col items-center space-y-3 md:mt-6 w-full  ">

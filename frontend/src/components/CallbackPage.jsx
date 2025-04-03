@@ -23,19 +23,19 @@ const CallbackPage =  () => {
   },[location.search,loading]);
 
   const handleCalendlyCallback = async (code) => {
-    console.log("api call ho rhi hai",code);
+  
     
     try {
-      const response = await axios.get(`http://localhost:5000/auth?code=${code}`);
-      console.log("Full API Response:", response);
+      const response = await axios.get(`${import.meta.env.VITE_BACKEND_BASE_URL}/auth?code=${code}`);
+
+   
       if (response.data.user) {
         dispatch(setUser(response.data.user)); // Update Redux
-        console.log("Backend response",response.data.user);
+     
         localStorage.setItem("accessToken", response.data.accessToken);
         localStorage.setItem("expiresAt", response.data.expiresAt);
         localStorage.setItem("userId", response.data.user.id); // 🔹 Store userId
 
-        console.log(localStorage.getItem("accessToken", response.data.accessToken)  );
         
         
         

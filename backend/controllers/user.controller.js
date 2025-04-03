@@ -3,12 +3,15 @@ import User from "../models/user.model.js";
 import jwt from "jsonwebtoken";
 import { ApiError } from "../utils/apiError.js";
 import { ApiResponse } from "../utils/apiResponse.js";
-import getPublicAvailability from "../utils/calendlyApi.js";
+// import scrapeAvailableDatesAndTimes from "../utils/scrapeCalendly.js";
+import scrapeAvailableDatesAndTimes from "../utils/scrapeCalendly.js";
+
+
 
 const handleAuth = async (req, res, next) => {
   const code = req.query.code;
 
-  console.log("call recieve");
+
   
   if (!code) {
     return next(new ApiError(400, "Authorization code is missing"));
@@ -23,7 +26,7 @@ const handleAuth = async (req, res, next) => {
       redirect_uri: process.env.CALENDLY_REDIRECT_URI,
       code: code,
     });
-console.log("point 1",response.data.expires_in);
+
 
     if (!response.data.access_token) {
       return next(new ApiError(400, "Unable to retrieve access token"));
@@ -35,10 +38,7 @@ console.log("point 1",response.data.expires_in);
     const expiresAt = new Date();
     expiresAt.setSeconds(expiresAt.getSeconds() + expires_in);
 
-    // expiresAt.setSeconds(expiresAt.getSeconds() + 70);
-//     const expiresAt = Date.now() + 300 * 1000;
 
-console.log(expiresAt);
 
 
     
@@ -50,7 +50,7 @@ console.log(expiresAt);
     });
 
     const userData = userInfoResponse.data.resource;
-    const { email, name } = userData;
+    const { email, name ,timezone } = userData;
 
     // 🔹 Check if user exists in MongoDB
     let user = await User.findOne({ email });
@@ -60,6 +60,7 @@ console.log(expiresAt);
       user.access_token = access_token;
       user.refresh_token = refresh_token;
       user.expires_at = expiresAt;
+      user.timezone = timezone;
       await user.save();
     } else {
       // 🆕 Create a new user
@@ -69,14 +70,15 @@ console.log(expiresAt);
         access_token,
         refresh_token,
         expires_at: expiresAt,
+        timezone
       });
     }
-console.log("point 2",name);
+
    
     const jwtAccessToken = jwt.sign({ userId: user._id,}, process.env.JWT_SECRET, {
       expiresIn: "1h",
     });
-    console.log("point 3 all ok");
+  
      
     return res.status(200).json(
       new ApiResponse(
@@ -84,64 +86,107 @@ console.log("point 2",name);
         {
           accessToken: jwtAccessToken,
           expiresAt: expiresAt.toISOString(),
-          user: { id: user._id, name: user.name, email: user.email },
+          user: { id: user._id, name: user.name, email: user.email ,timezone:user.timezone},
         },
         "User authenticated successfully"
       )
     );
   } catch (error) {
-    console.log("point 4 some error");
+   
 
     return next(new ApiError(500, error?.response?.data?.message || "Internal Server Error"));
   }
 };
 
+
 const fetchAvailability = async (req, res, next) => {
-  console.log("call achieved ");
+  console.log("📞 API Call Received");
 
   try {
     const links = req.body.links;
-    console.log(links);
-    
-    // const combinedAvailability =" sunday to wednesday"
-     
-    // ✅ Separate Calendly & Google links
-    const googleLinks = links.filter((link) => link.includes("calendar.google.com"));
+  
+
     const calendlyLinks = links.filter((link) => link.includes("calendly.com"));
 
-    
-
-    // ✅ Get user's stored Calendly token
-    const user = await User.findOne({ _id: req.user.userId });
-
-    
-    if (!user || !user.access_token) {
-      return next(new ApiError(401, "Calendly not connected"));
+    if (calendlyLinks.length === 0) {
+      return next(new ApiError(400, "No valid Calendly links provided"));
     }
 
-    // // ✅ Check if token is expired & refresh if needed
-    // let accessToken = user.access_token;
-    // if (new Date() > new Date(user.expires_at)) {
-    //   console.log("🔄 Access token expired, refreshing...");
-    //   accessToken = await refreshCalendlyToken(user);
-    //   if (!accessToken) {
-    //     return next(new ApiError(401, "Failed to refresh Calendly token"));
-    //   }
-    // }
 
-    // // ✅ Fetch Free/Busy Data from Calendly
-    const calendlyAvailability = await getPublicAvailability(calendlyLinks)
+    const userId = req.user.userId;
 
-    // // ✅ Fetch Free/Busy Data from Google Calendar
-    // const googleAvailability = await getGoogleAvailability(googleLinks);
+    // ✅ Query database to get the user's stored time zone
+    const user = await User.findById(userId);
+    if (!user) {
+      return next(new ApiError(404, "User not found"));
+    }
+    const userTimeZone = user.timezone || "UTC"; // Default to UTC if missing
 
-    // // ✅ Merge both availabilities & find overlapping free slots
-    // const combinedAvailability = mergeAvailabilities(calendlyAvailability, googleAvailability);
-     
-    return res.status(200).json(new ApiResponse(200, { availability: calendlyAvailability }, "Availability fetched successfully"));
+   
+
+
+    console.log("📡 Scraping Calendly links one by one...");
+
+    let calendlyAvailabilities = [];
+
+    // ✅ Process each link one by one
+    for (let link of calendlyLinks) {
+      try {
+        let data = await scrapeAvailableDatesAndTimes(link,userTimeZone);
+        calendlyAvailabilities.push(data);
+      } catch (error) {
+        console.error(`❌ Error scraping ${link}:`, error);
+        return next(new ApiError(500, "Failed to fetch availability"));
+      }
+    }
+
+    const overlappingTimes = findOverlappingTimes(calendlyAvailabilities);
+// console.log("Overlapping times",overlappingTimes);
+
+    return res.status(200).json(
+      new ApiResponse(200, { overlappingTimes }, "Availability fetched successfully")
+    );
   } catch (error) {
+    console.error("❌ Unexpected error:", error);
     return next(new ApiError(500, error.message || "Internal Server Error"));
   }
 };
+
+
+export const findOverlappingTimes = (allAvailabilities) => {
+  let availabilityMap = new Map();
+
+  // ✅ Step 1: Store all available times for each date
+  for (let userAvailability of allAvailabilities) {
+    for (let { date, dayName, times } of userAvailability) {
+      if (!availabilityMap.has(date)) {
+        availabilityMap.set(date, { dayName, timesArray: [] });
+      }
+      availabilityMap.get(date).timesArray.push(times);
+    }
+  }
+
+  let commonAvailability = [];
+
+  // ✅ Step 2: Find overlapping times for each date
+  for (let [date, { dayName, timesArray }] of availabilityMap.entries()) {
+    if (timesArray.length !== allAvailabilities.length) {
+      // ❌ If not all users have availability for this date, skip it
+      continue;
+    }
+
+    // ✅ Fix: Corrected `.reduce()` to handle the first iteration properly
+    let commonTimes = timesArray.reduce((acc, times) => 
+      acc.length === 0 ? times : acc.filter(time => times.includes(time))
+    );
+
+    commonAvailability.push({ date, dayName, times: commonTimes });
+  }
+
+  return commonAvailability;
+};
+
+
+
 
 export { handleAuth, fetchAvailability };

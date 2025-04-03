@@ -9,7 +9,7 @@ import { ApiResponse } from "./utils/apiResponse.js";
 dotenv.config();
 const app = express();
 
-// Connect to Database
+// Connect to Database Mongo db
 connectDB();
 
 const PORT = process.env.PORT || 8000;

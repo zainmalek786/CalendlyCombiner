@@ -9,6 +9,7 @@ import CallbackPage from "./components/CallbackPage.jsx";
 import ConnectCalendly from "./components/connectCalendly.jsx";
 import LinksForm from "./components/LinksForm.jsx";
 import Error from "./components/Error.jsx";
+import Results from "./components/Results.jsx";
 import { useSelector } from "react-redux";
 
 // ✅ Corrected ProtectedRoute Component
@@ -23,6 +24,8 @@ const router = createBrowserRouter(
       {/* Public Routes */}
       <Route path="callback" element={<CallbackPage />} />
       <Route path="auth" element={<ConnectCalendly />} />
+      <Route path="results" element={<Results />} />
+
       <Route path="*" element={<Error />} />
 
       {/* ✅ Protect "/" Route to Show Either `LinksForm` or Redirect */}

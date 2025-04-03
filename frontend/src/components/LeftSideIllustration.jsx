@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import Lottie from "lottie-react";
-import calendarAnimation from "./assets/animation.json";
+import calendarAnimation from "../assets/animation.json";
 
 function LeftSideIllustration() {
   const animationConfig = useMemo(() => ({ animationData: calendarAnimation, loop: true, autoplay: true }), []);

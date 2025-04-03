@@ -3,17 +3,12 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from "r
 import { useSelector } from "react-redux";
 import { Outlet } from "react-router-dom";
 import Title from "./components/Title.jsx";
-import LinksForm from "./components/LinksForm.jsx";
-import LeftSideIllustration from "./LeftSideIllustration.jsx";
+
+import LeftSideIllustration from "./components/LeftSideIllustration.jsx";
 import StepsGuide from "./components/StepsGuide.jsx";
 import Footer from "./components/Footer.jsx";
-import { useDispatch } from "react-redux";
-import checkAuthStatus from "../util/checkAuth.js";
 
-const PrivateRoute = ({ element }) => {
-  const user = useSelector((state) => state.auth.user);
-  return user ? element : <Navigate to="/" />;
-};
+
 
 const App = () => {
   
