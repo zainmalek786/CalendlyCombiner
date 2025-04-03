@@ -16,6 +16,7 @@ const handleAuth = async (req, res, next) => {
   if (!code) {
     return next(new ApiError(400, "Authorization code is missing"));
   }
+  const redirectUri = `${process.env.FRONTEND_BASE_URL}/callback`;
 
   try {
     // 🔹 Exchange code for tokens
@@ -23,7 +24,7 @@ const handleAuth = async (req, res, next) => {
       grant_type: "authorization_code",
       client_id: process.env.CALENDLY_CLIENT_ID,
       client_secret: process.env.CALENDLY_CLIENT_SECRET,
-      redirect_uri: process.env.CALENDLY_REDIRECT_URI,
+      redirect_uri: redirectUri,
       code: code,
     });
 

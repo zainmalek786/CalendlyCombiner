@@ -7,6 +7,7 @@
 /frontend/.next
 /frontend/dist
 /backend/dist
+.env
 
 # Ignore environment variable files
 # For frontend
