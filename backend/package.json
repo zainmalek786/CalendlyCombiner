@@ -17,20 +17,20 @@
   "author": "Zain Akber Malik",
   "license": "ISC",
   "dependencies": {
-    "axios": "^1.7.9",
+    "axios": "^1.9.0",
     "cors": "^2.8.5",
     "dayjs": "^1.11.13",
-    "dotenv": "^16.4.7",
-    "express": "^4.21.2",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
-    "mongodb": "^6.13.0",
-    "mongoose": "^8.10.0",
-    "puppeteer": "^24.3.0",
+    "mongodb": "^6.16.0",
+    "mongoose": "^8.14.2",
+    "puppeteer": "^24.8.2",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2",
     "random-useragent": "^0.5.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.9"
+    "nodemon": "^3.1.10"
   }
 }
