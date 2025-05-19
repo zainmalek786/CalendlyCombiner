@@ -1,5 +1,6 @@
 import React from "react";
-import logo from "../assets/logo-.PNG";
+// import logo from "../assets/logo-.PNG";
+import logo from "../assets/logo-.png"
 
 function Button({
   value="Button",
