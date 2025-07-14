@@ -4,10 +4,11 @@
   "description": "Backend for Calendly Combiner",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js",
-    "build": "nodemon index.js",
-    "s": "node utils/scrapeCalendly.js"
+     "dev": "nodemon index.js", 
+  "start": "node index.js",  
+  "build": "echo \"No build step needed\"", 
+  "s": "node utils/scrapeCalendly.js",
+  "test": "echo \"Error: no test specified\" && exit 1"
   },
   "type": "module",
   "keywords": [
