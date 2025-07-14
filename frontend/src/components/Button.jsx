@@ -4,20 +4,14 @@ import logo from "../assets/logo-.png"
 
 function Button({
   value="Button",
-  onclick
+  onClick
 }) {
   return (
-    <div className="flex items-center gap-3 bg-blue-700 font-bold py-2 px-4 border-blue-800 border rounded-md text-lg text-white shadow-sm shadow-blue-900">
+    <div onClick={onClick} className="flex items-center gap-3 bg-blue-700 font-bold py-2 px-4 border-blue-800 border rounded-md text-lg text-white shadow-sm shadow-blue-900">
       {/* Logo */}
       <img src={logo} alt="Calendly Logo" className="w-8 h-8" />
 
-      {/* Button */}
-      <input 
-        type="button" 
-        value={value}
-        onClick={onclick}
-        className=""
-      />
+    {value}
     </div>
   );
 }

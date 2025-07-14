@@ -53,7 +53,7 @@ function ConnectCalendly() {
   </p>
 
   {/* Button */}
-  <Button value="Connect To Calendly" onclick={connectCalendly} />
+  <Button value="Connect To Calendly" onClick={connectCalendly} />
 
   {/* Optional: Add an Icon Below */}
   <div className="mt-6 text-blue-700 text-4xl">

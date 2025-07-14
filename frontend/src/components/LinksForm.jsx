@@ -78,6 +78,7 @@ function LinksForm() {
         {/* Button to add another input field */}
         <div className="flex justify-center mt-4">
           <button
+          style={{ backgroundColor: "	#10b981",}}
             type="button"
             onClick={addLinkField}
             className="bg-green-500 text-white py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-green-300"
@@ -88,7 +89,7 @@ function LinksForm() {
 
         {/* Submit Button */}
         <div className="flex justify-center mt-4">
-          <Button value="Proceed" onclick={handleSubmit}/>
+          <Button value="Proceed" onClick={handleSubmit}/>
         </div>
       </div>
     </div>
