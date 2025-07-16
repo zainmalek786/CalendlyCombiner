@@ -1,7 +1,6 @@
 @import "tailwindcss";
 
 
-
 /* Custom Scrollbar */
 .scrollbar-custom::-webkit-scrollbar {
   width: 8px;
